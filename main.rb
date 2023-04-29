@@ -99,7 +99,7 @@ class Syllogism
   end
 
   def analyse
-    # A well-formed Boolean categorical syllogism iff
+    # A 3-vector of propositions is a well-formed Boolean categorical syllogism iff
     # 1) exactly 3 terms
     # 2) exactly 1 term is shared between the premises
     # 3) the conclusion's predicate is a term in the major premise
@@ -145,7 +145,7 @@ class Syllogism
       puts "Form: #{figure}-4"
     end
 
-    # Well formed syllogism is valid iff
+    # A well-formed syllogism is a valid argument iff
     # 1) Middle term is distributed in at least one premise
     # 2) If a term is distributed in the conclusion, then it is distributed in a premise.
     # 3) At least one premise is an affirmative proposition.
