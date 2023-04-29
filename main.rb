@@ -41,7 +41,7 @@ class E
   end
 
   def st
-    "All #{@subject} are #{@predicate}"
+    "No #{@subject} are #{@predicate}"
   end
 end
 
@@ -64,7 +64,7 @@ class I
   end
 
   def st
-    "All #{@subject} are #{@predicate}"
+    "Some #{@subject} are #{@predicate}"
   end
 end
 
@@ -87,7 +87,7 @@ class O
   end
 
   def st
-    "All #{@subject} are #{@predicate}"
+    "Some #{@subject} are not #{@predicate}"
   end
 end
 
