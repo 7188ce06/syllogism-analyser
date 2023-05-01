@@ -1,3 +1,31 @@
+=begin
+  argument: set of premises and a conclusion
+  syllogism: an argument with exactly two premises
+
+  categorical proposition: an A, E, I or I proposition.
+  A proposition: a proposition with the form, "All M are N."
+  E proposition: a proposition with the form, "No M are N."
+  I proposition: a proposition with the form, "Some M are N."
+  O proposition: a proposition with the form, "Some M are not N."
+
+  categorical syllogism: a syllogism where each premise and its conclusion are categorical propositions.
+  well-formed (WF) categorical syllogism: a categorical syllogism that satisfies each of three requirements,
+    a) the conclusion's predicate (major term) is identical to either the first premises' subject or predicate,
+    b) the conclusion's subject (minor term) is identical to either the second premises' subject or predicate,
+    c) the other terms (middle term) in the first and second premise are identical to eachother, but distinct from the conclusion's subject and predicate.
+  XXX: Requiring the middle term to be distinct from the major and minor terms might be superfluous.
+
+  valid WF categorical syllogism: a WF categorical syllogism whose conclusion necessarily follows from its premises.
+  invalid WF categorical syllogism: a WF categorical syllogism whose conclusion does not necessarily follow from its premises.
+
+  There are non-categorical syllogisms, such as hypothetical syllogisms,
+    If toads live in the desert, then toads don't require much water.
+    If toads don't require much water, then toads are mostly immobile.
+    Therefore, if toads live in the desert, then toads are mostly immobile.
+
+  Every WF catsyll is exactly one of a VWF catsyll and an IVWF catsyll.
+=end
+
 class A
   attr_reader :subject, :predicate
   def initialize(subject, predicate)
@@ -99,39 +127,44 @@ class Syllogism
   end
 
   def analyse
-    # A 3-vector of propositions is a well-formed Boolean categorical syllogism iff
-    # 1) exactly 3 terms
-    # 2) exactly 1 term is shared between the premises
-    # 3) the conclusion's predicate is a term in the major premise
-    # 4) the conclusion's subject is a term in the minor premise
-    notWf = "This is not a well-formed Boolean categorical syllogism"
-    if [@majorPremise.subject, @majorPremise.predicate,
-     @minorPremise.subject, @minorPremise.predicate,
-     @conclusion.subject, @conclusion.predicate].uniq.size != 3
-      puts "#{notWf}, the syllogism's propositions must use exactly three terms."
-      return false
-    elsif @majorPremise.subject != @minorPremise.subject and @majorPremise.subject != @minorPremise.predicate
-      # XXX: This isn't quite right, think about this syllogism.
-      # All A are B.
-      # All A are B.
-      # So, All A are A.
-      puts "#{notWf}, there must be exactly one term shared between the premises."
-      return false
-    elsif @conclusion.predicate != @majorPremise.subject && @conclusion.predicate != @majorPremise.predicate
+    # First, determine if the categorical syllogism is well-formed.
+    notWf = "This is not a well-formed categorical syllogism"
+
+    majorPremiseMiddle = nil
+    if @conclusion.predicate == @majorPremise.subject
+      majorPremiseMiddle = @majorPremise.predicate
+    elsif @conclusion.predicate == @majorPremise.predicate
+      majorPremiseMiddle = @majorPremise.subject
+    else
       puts "#{notWf}, the conclusion's predicate must be a term in the major premise."
       return false
-    elsif @conclusion.subject != @minorPremise.subject && @conclusion.subject != @minorPremise.predicate
+    end
+
+    minorPremiseMiddle = nil
+    if @conclusion.subject == @minorPremise.subject
+      minorPremiseMiddle = @minorPremise.predicate
+    elsif @conclusion.subject == @minorPremise.predicate
+      minorPremiseMiddle = @minorPremise.subject
+    else
       puts "#{notWf}, the conclusion's subject must be a term in the minor premise."
       return false
     end
 
+    if majorPremiseMiddle != minorPremiseMiddle
+      puts "#{notWf}, the major and minor premise must have identical middle terms."
+      return false
+    elsif majorPremiseMiddle == @conclusion.subject or majorPremiseMiddle == @conclusion.predicate
+      puts "#{notWf}, the major premises' middle term must not be identical to either of the conclusion's terms."
+      return false
+    elsif minorPremiseMiddle == @conclusion.subject or minorPremiseMiddle == @conclusion.predicate
+      puts "#{notWf}, the minor premises' middle term must not be identical to either of the conclusion's terms."
+      return false
+    end
+    middleTerm = majorPremiseMiddle
+
+    # Report some details about the well-formed categorical syllogism.
     puts "Major Term: #{@conclusion.predicate}"
     puts "Minor Term: #{@conclusion.subject}"
-    if @majorPremise.subject == @conclusion.predicate
-      middleTerm = @majorPremise.predicate
-    else
-      middleTerm = @majorPremise.subject
-    end
     puts "Middle Term: #{middleTerm}"
 
     figure = "#{@majorPremise.class.name}#{@minorPremise.class.name}#{@conclusion.class.name}"
@@ -145,6 +178,7 @@ class Syllogism
       puts "Form: #{figure}-4"
     end
 
+    # Second, decide if a well-formed categorical syllogism is valid.
     # A well-formed syllogism is a valid argument iff
     # 1) Middle term is distributed in at least one premise
     # 2) If a term is distributed in the conclusion, then it is distributed in a premise.
